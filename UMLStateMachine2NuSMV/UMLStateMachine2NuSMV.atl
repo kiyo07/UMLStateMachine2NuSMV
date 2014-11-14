@@ -1,0 +1,6 @@
+-- @nsURI NuSMV=http://www.unibg.it/nuseen/nusmvlanguage/NuSMV
+-- @nsURI UML=http://www.eclipse.org/uml2/5.0.0/UML
+
+module UMLStateMachine2NuSMV;
+create OUT : NuSMV from IN : UML;
+
