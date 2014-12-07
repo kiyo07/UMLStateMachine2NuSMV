@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ActionLanguage="http://www.omg.org/spec/ALF/20120827/ActionLanguage-Profile" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xsi:schemaLocation="http://www.omg.org/spec/ALF/20120827/ActionLanguage-Profile pathmap://PAPYRUS_ACTIONLANGUAGE_PROFILE/ActionLanguage-Profile.profile.uml#_sYse0YZLEeKyw49uR6nx3g">
+  <uml:Model xmi:id="_nSJxwHnWEeSBh4tZ7Wvdew" name="model">
+    <packagedElement xmi:type="uml:StateMachine" xmi:id="_nTaWAHnWEeSBh4tZ7Wvdew" name="QoSSM">
+      <region xmi:type="uml:Region" xmi:id="_nUCBEHnWEeSBh4tZ7Wvdew" name="Region1">
+        <transition xmi:type="uml:Transition" xmi:id="_S8YZMHnbEeSBh4tZ7Wvdew" name="high2notHigh" source="_-IzckHnaEeSBh4tZ7Wvdew" target="_NkUIUHnbEeSBh4tZ7Wvdew">
+          <trigger xmi:type="uml:Trigger" xmi:id="_nIfS4HnrEeS_S9JqzGvm2g" name="switchToText" event="_mzSe8HnrEeS_S9JqzGvm2g"/>
+        </transition>
+        <transition xmi:type="uml:Transition" xmi:id="_WfqSsHnbEeSBh4tZ7Wvdew" name="notHigh2high" source="_NkUIUHnbEeSBh4tZ7Wvdew" target="_-IzckHnaEeSBh4tZ7Wvdew">
+          <trigger xmi:type="uml:Trigger" xmi:id="_zqFLMHnrEeS_S9JqzGvm2g" name="switchToMM" event="_zdyboHnrEeS_S9JqzGvm2g"/>
+        </transition>
+        <transition xmi:type="uml:Transition" xmi:id="_liWOwHnbEeSBh4tZ7Wvdew" name="notHigh2notHigh" source="_NkUIUHnbEeSBh4tZ7Wvdew" target="_NkUIUHnbEeSBh4tZ7Wvdew">
+          <trigger xmi:type="uml:Trigger" xmi:id="_r_4foHnrEeS_S9JqzGvm2g" name="switchToText" event="_mzSe8HnrEeS_S9JqzGvm2g"/>
+        </transition>
+        <transition xmi:type="uml:Transition" xmi:id="_JYdjMHnsEeS_S9JqzGvm2g" name="high2high" source="_-IzckHnaEeSBh4tZ7Wvdew" target="_-IzckHnaEeSBh4tZ7Wvdew">
+          <trigger xmi:type="uml:Trigger" xmi:id="_OhJ7UHnsEeS_S9JqzGvm2g" event="_zdyboHnrEeS_S9JqzGvm2g"/>
+        </transition>
+        <subvertex xmi:type="uml:State" xmi:id="_-IzckHnaEeSBh4tZ7Wvdew" name="QoS=high"/>
+        <subvertex xmi:type="uml:State" xmi:id="_NkUIUHnbEeSBh4tZ7Wvdew" name="QoS=notHigh"/>
+      </region>
+    </packagedElement>
+    <packagedElement xmi:type="uml:StateMachine" xmi:id="_B8ZecHnlEeS_S9JqzGvm2g" name="AC41">
+      <region xmi:type="uml:Region" xmi:id="_CrziIHnlEeS_S9JqzGvm2g" name="Region1">
+        <transition xmi:type="uml:Transition" xmi:id="_SPbBAHnlEeS_S9JqzGvm2g" name="MM2text" visibility="protected" guard="_OBVIkHnoEeS_S9JqzGvm2g" source="_MBGdkHnlEeS_S9JqzGvm2g" target="_Pk-0AHnlEeS_S9JqzGvm2g">
+          <ownedRule xmi:type="uml:Constraint" xmi:id="_OBVIkHnoEeS_S9JqzGvm2g" name="QoS=high&amp;responseTime=notFast">
+            <specification xmi:type="uml:OpaqueExpression" xmi:id="_eE1BYHnoEeS_S9JqzGvm2g" name="QoS=high&amp;responseTime=notFast">
+              <language>Natural language</language>
+              <body>QoS=high&amp;responseTime=notFast</body>
+            </specification>
+          </ownedRule>
+          <effect xmi:type="uml:OpaqueBehavior" xmi:id="_PQ2A8HnuEeS_S9JqzGvm2g" name="switchToMM"/>
+          <trigger xmi:type="uml:Trigger" xmi:id="_DL5QEHnoEeS_S9JqzGvm2g" name="monitor" event="_IJRwEHnoEeS_S9JqzGvm2g"/>
+        </transition>
+        <transition xmi:type="uml:Transition" xmi:id="_P-Gh0HnpEeS_S9JqzGvm2g" name="text2MM" visibility="package" guard="_8liVMHnpEeS_S9JqzGvm2g" source="_Pk-0AHnlEeS_S9JqzGvm2g" target="_MBGdkHnlEeS_S9JqzGvm2g">
+          <ownedRule xmi:type="uml:Constraint" xmi:id="_8liVMHnpEeS_S9JqzGvm2g" name="QoC=notHigh&amp;responseTime=fast&#xD;&#xA;">
+            <specification xmi:type="uml:OpaqueExpression" xmi:id="_8liVMXnpEeS_S9JqzGvm2g" name="QoC=notHigh&amp;responseTime=fast&#xD;&#xA;">
+              <language>Natural language</language>
+              <body>QoC=notHigh&amp;responseTime=fast</body>
+            </specification>
+          </ownedRule>
+          <effect xmi:type="uml:OpaqueBehavior" xmi:id="_Gho1IHnuEeS_S9JqzGvm2g" name="switchToMM"/>
+          <trigger xmi:type="uml:Trigger" xmi:id="_RD-n8HntEeS_S9JqzGvm2g" name="monitor" event="_IJRwEHnoEeS_S9JqzGvm2g"/>
+        </transition>
+        <subvertex xmi:type="uml:State" xmi:id="_MBGdkHnlEeS_S9JqzGvm2g" name="contentType=MM"/>
+        <subvertex xmi:type="uml:State" xmi:id="_Pk-0AHnlEeS_S9JqzGvm2g" name="contentType=text"/>
+      </region>
+    </packagedElement>
+    <packagedElement xmi:type="uml:SignalEvent" xmi:id="_IJRwEHnoEeS_S9JqzGvm2g" name="monitor"/>
+    <packagedElement xmi:type="uml:SignalEvent" xmi:id="_mzSe8HnrEeS_S9JqzGvm2g" name="switchToText"/>
+    <packagedElement xmi:type="uml:SignalEvent" xmi:id="_zdyboHnrEeS_S9JqzGvm2g" name="switchToMM"/>
+    <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_sqB1YHnWEeSBh4tZ7Wvdew">
+      <eAnnotations xmi:type="ecore:EAnnotation" xmi:id="_sqiywHnWEeSBh4tZ7Wvdew" source="http://www.eclipse.org/uml2/2.0.0/UML">
+        <references xmi:type="ecore:EPackage" href="pathmap://PAPYRUS_ACTIONLANGUAGE_PROFILE/ActionLanguage-Profile.profile.uml#_sYse0YZLEeKyw49uR6nx3g"/>
+      </eAnnotations>
+      <appliedProfile xmi:type="uml:Profile" href="pathmap://PAPYRUS_ACTIONLANGUAGE_PROFILE/ActionLanguage-Profile.profile.uml#ActionLanguage"/>
+    </profileApplication>
+  </uml:Model>
+  <ActionLanguage:TextualRepresentation xmi:id="_sx5_AHnWEeSBh4tZ7Wvdew" language="org.eclipse.papyrus.uml.textedit.state.xtext.UmlState"/>
+  <ActionLanguage:TextualRepresentation xmi:id="_BS5W0HnXEeSBh4tZ7Wvdew" language="org.eclipse.papyrus.uml.textedit.state.xtext.UmlState"/>
+  <ActionLanguage:TextualRepresentation xmi:id="_aiU24HnbEeSBh4tZ7Wvdew" language="org.eclipse.papyrus.uml.textedit.transition.xtext.UmlTransition"/>
+  <ActionLanguage:TextualRepresentation xmi:id="_J0hRQHnlEeS_S9JqzGvm2g" language="org.eclipse.papyrus.uml.textedit.state.xtext.UmlState"/>
+</xmi:XMI>
