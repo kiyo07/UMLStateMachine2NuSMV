@@ -1,0 +1,9 @@
+[comment encoding = UTF-8 /]
+[module generate('http://www.unibg.it/nuseen/nusmvlanguage/NuSMV')]
+
+[template public generateNuSMVCode(nusmv : NuSmvModel)]
+[comment @main/]
+[file ('NuSMVFromUMLSM.smv', false, 'UTF-8')]
+
+[/file]
+[/template]

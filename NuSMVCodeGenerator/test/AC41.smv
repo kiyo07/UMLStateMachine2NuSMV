@@ -1,0 +1,39 @@
+MODULE main
+ VAR
+------- Controlled variables --------
+	responseTime:{fast, notFast};
+	QoC:{high, notHigh};
+------- Actions --------
+	actionEVP4: {switchToMM, switchToText, none};
+------- SMac ----------
+	ac41: AC41(QoC,responseTime,actionEVP4);
+
+ ASSIGN
+------ Current values of controlled variables
+	init(responseTime) := notFast;
+	init(QoC) := high;
+
+	init(actionEVP4) := none;
+
+---- SMac -----
+MODULE AC41(QoC,responseTime,action)
+ VAR
+	contentType:{MM,text};
+ ASSIGN
+	init(contentType):=MM;
+	next(contentType):=
+		case
+		 contentType=MM & action=switchToMM : MM;
+		 contentType=MM & action=switchToText : text;
+ 		 contentType=text & action=switchToMM : MM;
+  		 contentType=text & action=switchToText : text;
+		 TRUE : contentType;
+		esac;
+	next(action):=
+		case
+		 contentType=MM & QoC=high & responseTime=fast : none; 
+		 contentType=text & QoC=notHigh & responseTime=fast : switchToMM; 
+		 contentType=MM & QoC=high & responseTime=notFast : switchToText; 
+		 contentType=text & QoC=notHigh & responseTime=notFast : none;
+		 TRUE : action;
+		esac;

@@ -1,0 +1,26 @@
+MODULE main
+ VAR
+------- Controlled variables --------
+	QoC:{high, notHigh};
+------- Actions --------
+	actionEVP4: {switchToMM, switchToText, none};
+------- SMqa ----------
+	qSMe: QoSSM(QoC,actionEVP4);
+
+ ASSIGN
+------ Current values of controlled variables
+	init(QoC) := high;
+
+	init(actionEVP4) := none;
+
+---- SMqa -----
+MODULE QoSSM(QoC,actionEVP4)
+ ASSIGN
+	next(QoC):=
+		case
+		 QoC=high & actionEVP4=switchToMM : high;
+		 QoC=high & actionEVP4=switchToText : notHigh;
+		 QoC=notHigh & actionEVP4=switchToMM : high;
+		 QoC=notHigh & actionEVP4=switchToText : notHigh;
+		 TRUE : QoC;
+		esac;
