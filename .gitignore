@@ -1,0 +1,12 @@
+# dot files
+.DS_Store
+#*.gitignore
+
+# generated files
+*/bin/
+
+# eclipse files
+*/.project
+*/.metadato
+*/.classpath
+*/.settings/
