@@ -1,6 +1,236 @@
--- @nsURI NuSMV=http://www.unibg.it/nuseen/nusmvlanguage/NuSMV
+-- @path NuSMV=/NuSMVCodeGenerator/ref/NuSMV.ecore
 -- @nsURI UML=http://www.eclipse.org/uml2/5.0.0/UML
 
 module UMLStateMachine2NuSMV;
 create OUT : NuSMV from IN : UML;
+
+rule UML2NuSMV {
+	from
+		model : UML!Model
+	to 
+		smv : NuSMV!NuSmvModel (
+			modules <- main
+		),
+		main : NuSMV!Module (
+			name <- 'main',
+			-- var definition
+			moduleElement <- vardef,
+			-- assign definition
+			moduleElement <- assign
+		), 
+		vardef : NuSMV!VariableDeclaration (
+			-- state var definition 
+			vars <- model.packagedElement
+					->select(e | e.oclIsTypeOf(UML!StateMachine))
+					->collect(e | thisModule.SM2StateVar(e)),
+			-- action var definition
+			vars <- model.packagedElement
+					->select(e | e.oclIsTypeOf(UML!Class) and e.isActionEVP())
+					->collect(e | thisModule.SM2ActionVar(e)),
+			-- module var definition
+			vars <- model.packagedElement
+					->select(e | e.oclIsTypeOf(UML!StateMachine))
+					->collect(e | thisModule.SM2ModuleVar(e))
+		),
+		assign : NuSMV!AssignConstraintElement (
+			-- state var init
+			bodies <- model.packagedElement
+					->select(e | e.oclIsTypeOf(UML!StateMachine))
+					->collect(e | thisModule.SM2StateVarInit(e)),
+			-- action var init
+			bodies <- model.packagedElement
+					->select(e | e.oclIsTypeOf(UML!Class) and e.isActionEVP())
+					->collect(e | thisModule.SM2ActionVarInit(e))
+		)
+}
+
+unique lazy rule SM2StateVar {
+	from 
+		sm : UML!StateMachine
+	to 
+		state : NuSMV!VarBody (
+			name <- sm.getStateVar(),
+			semicolon <- true,
+			type <- enum
+		),
+		enum : NuSMV!EnumType (
+			val <- sm.getStateValSeq()->collect(e | thisModule.genVal(e))
+		)
+	do {
+		state;
+	}
+}
+
+unique lazy rule SM2ActionVar {
+	from
+		class : UML!Class
+	to 
+		classvar : NuSMV!VarBody (
+			name <- class.name,
+			semicolon <- true,
+			type <- enum
+		),
+		enum : NuSMV!EnumType (
+			val <- class.ownedOperation->collect(e | thisModule.genVal(e.name))
+		)
+	do {
+		classvar;
+	}
+}
+
+unique lazy rule SM2ModuleVar {
+	from 
+		sm : UML!StateMachine
+	to 
+		modul : NuSMV!VarBody (
+			name <- sm.getStateVar(),
+			semicolon <- true,
+			type <- moduletype
+		),
+		moduletype : NuSMV!ModuleType (
+			params <- state_var_param,
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e))
+		),
+		state_var_param : NuSMV!FormalParameter (
+			name <- sm.getStateVar()
+		)
+	do {
+		modul;
+	}
+}
+
+lazy rule Attr2ActionParam {
+	from
+		attr : UML!Property
+	to 
+		param : NuSMV!FormalParameter (
+			name <- attr.name
+		)
+}
+
+unique lazy rule SM2StateVarInit {
+	from
+		sm : UML!StateMachine
+	to
+		init : NuSMV!InitBody (
+			var <- thisModule.genVar(sm.getStateVar()),
+			initial <- thisModule.genValueExpression(sm.getStateValSeq().first())
+		)
+}
+
+unique lazy rule SM2ActionVarInit {
+	from
+		class : UML!Class
+	to
+		init : NuSMV!InitBody (
+			var <- thisModule.genVar(class.name),
+			initial <- thisModule.genValueExpression('none')
+		)
+}
+
+rule SM2Module {
+	from
+		sm : UML!StateMachine
+	to 
+		modul : NuSMV!Module (
+			name <- sm.name,
+			params <- state_var_param,
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e)),
+			moduleElement <- assign
+		),
+		state_var_param : NuSMV!FormalParameter (
+			name <- sm.getStateVar()
+		),
+		assign : NuSMV!AssignConstraintElement (
+			bodies <- next
+		),
+		next : NuSMV!NextBody(
+			var <- thisModule.genVar(sm.getStateVar()),
+			dotted <- case
+		),
+		case : NuSMV!CaseSimpleExpression (
+			branches <- sm.region.first().transition
+						->collect(e | thisModule.Transition2CaseBranch(e)),
+			branches <- truecase
+		),
+		truecase : NuSMV!CaseSimpleAssignementExpression (
+			case <- thisModule.genValueExpression('TRUE'),
+			assignment <- thisModule.genValueExpression(sm.getStateVar())
+		)
+}
+
+rule Transition2CaseBranch(trans : UML!Transition) {
+	to 
+		branch : NuSMV!CaseSimpleAssignementExpression (
+			case <- exp,
+			assignment <- thisModule.genValueExpression(trans.target.getStateVal())
+		),	
+		exp : NuSMV!BinaryExpression (
+			left <- thisModule.genValueExpression(trans.source.name),
+			operator <- '&',
+			right <- thisModule.genValueExpression(trans.trigger.first().name.replaceAll('.', '='))
+		)
+	do {
+		branch;
+	}
+}
+
+rule genVar(str : String) {
+	to 
+		var : NuSMV!VarBody (
+			name <- str
+		)
+	do {
+		var;
+	}
+}
+
+rule genVal(str : String) {
+	to 
+		val : NuSMV!Val (
+			name <- str
+		)
+	do {
+		val;
+	}
+}
+
+rule genValueExpression(str : String) {
+	to 
+		exp : NuSMV!ValueExpression (
+			value <- str
+		)
+	do {
+		exp;
+	}
+}
+
+helper context UML!StateMachine def : getStateVar() : String = 
+	let name : String = self.region.first().subvertex.first().name 
+	in name.substring(1, name.indexOf('='));
+
+helper context UML!StateMachine def : getStateValSeq() : Sequence(String) = 
+	let names : Sequence(String) = self.region.first().subvertex->collect(e | e.name)
+	in names->collect(e | e.substring(e.indexOf('=') + 2, e.size()));
+
+helper context UML!StateMachine def : getCorrespondingClass() : UML!Class = 
+	let name : String = self.name
+	in UML!Class.allInstances()
+		->select(e | e.oclIsTypeOf(UML!Class) and e.name = name).first();
+
+helper context UML!Vertex def : getStateVal() : String = 
+	let name : String = self.name 
+	in name.substring(name.indexOf('=') + 2, name.size());
+
+helper context UML!StateMachine def : getTrigers() : Sequence(String) = 
+	self.region.first().transition;
+
+helper context String def : replaceDot2Eq() : String = 
+	if self.split('.').size() > 1 then self else self.replaceAll('.', '=') endif;
+
+helper context UML!PackageableElement def : isActionEVP() : Boolean = 
+	if self.name.oclIsUndefined() then false 
+	else if self.name.startsWith('action') then true 
+	else false 
+	endif endif;
 
