@@ -1,100 +1,81 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<nuSMVModel:NuSmvModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:nuSMVModel="http://www.example.org/nuSMVModel">
-  <modules name="main">
-    <moduleElement xsi:type="nuSMVModel:VariableDeclaration">
-      <vars name="QoC" semicolon="true">
-        <type xsi:type="nuSMVModel:EnumType">
-          <val name="high"/>
-          <val name="notHigh"/>
-        </type>
-      </vars>
-      <vars name="actionEVP4" semicolon="true">
-        <type xsi:type="nuSMVModel:EnumType">
-          <val name="switchToMM"/>
-          <val name="switchToText"/>
-          <val name="none"/>
-        </type>
-      </vars>
-      <vars name="qSMe" semicolon="true">
-        <type xsi:type="nuSMVModel:ModuleType" module="//@modules.1">
-          <params xsi:type="nuSMVModel:Var" value="//@modules.0/@moduleElement.0/@vars.0"/>
-          <params xsi:type="nuSMVModel:Var" value="//@modules.0/@moduleElement.0/@vars.1"/>
-        </type>
-      </vars>
-    </moduleElement>
-    <moduleElement xsi:type="nuSMVModel:AssignConstraintElement">
-      <bodies xsi:type="nuSMVModel:InitBody" var="//@modules.0/@moduleElement.0/@vars.0" semicolon="true">
-        <initial xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.0"/>
-      </bodies>
-      <bodies xsi:type="nuSMVModel:InitBody" var="//@modules.0/@moduleElement.0/@vars.1" semicolon="true">
-        <initial xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.1/@type/@val.2"/>
-      </bodies>
-    </moduleElement>
-  </modules>
-  <modules name="QoSSM">
-    <params name="QoC"/>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:nuSMV="http://www.unibg.it/nuseen/nusmvlanguage/NuSMV">
+  <nuSMV:NuSmvModel>
+    <modules name="main">
+      <moduleElement xsi:type="nuSMV:VariableDeclaration">
+        <vars name="QoS" semicolon="true">
+          <type xsi:type="nuSMV:EnumType">
+            <val name="high"/>
+            <val name="notHigh"/>
+          </type>
+        </vars>
+        <vars name="actionEVP4" semicolon="true">
+          <type xsi:type="nuSMV:EnumType">
+            <val name="none"/>
+            <val name="switchToMM"/>
+            <val name="switchToText"/>
+          </type>
+        </vars>
+        <vars name="QoS" semicolon="true">
+          <type xsi:type="nuSMV:ModuleType">
+            <params xsi:type="nuSMV:FormalParameter" name="QoS"/>
+            <params xsi:type="nuSMV:FormalParameter" name="actionEVP4"/>
+          </type>
+        </vars>
+      </moduleElement>
+      <moduleElement xsi:type="nuSMV:AssignConstraintElement">
+        <bodies xsi:type="nuSMV:InitBody" var="/2">
+          <initial xsi:type="nuSMV:ValueExpression" value="high"/>
+        </bodies>
+        <bodies xsi:type="nuSMV:InitBody" var="/3">
+          <initial xsi:type="nuSMV:ValueExpression" value="none"/>
+        </bodies>
+      </moduleElement>
+    </modules>
+  </nuSMV:NuSmvModel>
+  <nuSMV:Module name="SMqa4QoS">
+    <params name="QoS"/>
     <params name="actionEVP4"/>
-    <moduleElement xsi:type="nuSMVModel:AssignConstraintElement">
-      <bodies xsi:type="nuSMVModel:NextBody" var="//@modules.1/@params.0">
-        <dotted xsi:type="nuSMVModel:CaseSimpleExpression">
+    <moduleElement xsi:type="nuSMV:AssignConstraintElement">
+      <bodies xsi:type="nuSMV:NextBody" var="/4">
+        <dotted xsi:type="nuSMV:CaseSimpleExpression">
           <branches>
-            <case xsi:type="nuSMVModel:BinaryExpression" operator="&amp;">
-              <left xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.0"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.0"/>
-              </left>
-              <right xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.1"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.1/@type/@val.0"/>
-              </right>
+            <case xsi:type="nuSMV:BinaryExpression" operator="&amp;">
+              <left xsi:type="nuSMV:ValueExpression" value="QoS=high"/>
+              <right xsi:type="nuSMV:ValueExpression" value="actionEVP4=switchToText"/>
             </case>
-            <assignment xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.0"/>
+            <assignment xsi:type="nuSMV:ValueExpression" value="notHigh"/>
           </branches>
           <branches>
-            <case xsi:type="nuSMVModel:BinaryExpression" operator="&amp;">
-              <left xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.0"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.0"/>
-              </left>
-              <right xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.1"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.1/@type/@val.1"/>
-              </right>
+            <case xsi:type="nuSMV:BinaryExpression" operator="&amp;">
+              <left xsi:type="nuSMV:ValueExpression" value="QoS=notHigh"/>
+              <right xsi:type="nuSMV:ValueExpression" value="actionEVP4=switchToMM"/>
             </case>
-            <assignment xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.1"/>
+            <assignment xsi:type="nuSMV:ValueExpression" value="high"/>
           </branches>
           <branches>
-            <case xsi:type="nuSMVModel:BinaryExpression" operator="&amp;">
-              <left xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.0"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.1"/>
-              </left>
-              <right xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.1"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.1/@type/@val.0"/>
-              </right>
+            <case xsi:type="nuSMV:BinaryExpression" operator="&amp;">
+              <left xsi:type="nuSMV:ValueExpression" value="QoS=notHigh"/>
+              <right xsi:type="nuSMV:ValueExpression" value="actionEVP4=switchToText"/>
             </case>
-            <assignment xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.0"/>
+            <assignment xsi:type="nuSMV:ValueExpression" value="notHigh"/>
           </branches>
           <branches>
-            <case xsi:type="nuSMVModel:BinaryExpression" operator="&amp;">
-              <left xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.0"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.1"/>
-              </left>
-              <right xsi:type="nuSMVModel:BinaryExpression">
-                <left xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.1"/>
-                <right xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.1/@type/@val.1"/>
-              </right>
+            <case xsi:type="nuSMV:BinaryExpression" operator="&amp;">
+              <left xsi:type="nuSMV:ValueExpression" value="QoS=high"/>
+              <right xsi:type="nuSMV:ValueExpression" value="actionEVP4=switchToMM"/>
             </case>
-            <assignment xsi:type="nuSMVModel:SetElementExpression" val="//@modules.0/@moduleElement.0/@vars.0/@type/@val.1"/>
+            <assignment xsi:type="nuSMV:ValueExpression" value="high"/>
           </branches>
           <branches>
-            <case xsi:type="nuSMVModel:ValueExpression" value="TRUE"/>
-            <assignment xsi:type="nuSMVModel:SetValueParameter" valparam="//@modules.1/@params.0"/>
+            <case xsi:type="nuSMV:ValueExpression" value="TRUE"/>
+            <assignment xsi:type="nuSMV:ValueExpression" value="QoS"/>
           </branches>
         </dotted>
       </bodies>
     </moduleElement>
-  </modules>
-</nuSMVModel:NuSmvModel>
+  </nuSMV:Module>
+  <nuSMV:VarBody name="QoS"/>
+  <nuSMV:VarBody name="actionEVP4"/>
+  <nuSMV:VarBody name="QoS"/>
+</xmi:XMI>
