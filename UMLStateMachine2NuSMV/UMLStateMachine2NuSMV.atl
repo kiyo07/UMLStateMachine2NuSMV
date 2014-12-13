@@ -21,7 +21,7 @@ rule UML2NuSMV {
 		vardef : NuSMV!VariableDeclaration (
 			-- state var definition 
 			vars <- model.packagedElement
-					->select(e | e.oclIsTypeOf(UML!StateMachine))
+					->select(e | e.oclIsTypeOf(UML!StateMachine) and e.isSMqa())
 					->collect(e | thisModule.SM2StateVar(e)),
 			-- action var definition
 			vars <- model.packagedElement
@@ -29,13 +29,16 @@ rule UML2NuSMV {
 					->collect(e | thisModule.SM2ActionVar(e)),
 			-- module var definition
 			vars <- model.packagedElement
-					->select(e | e.oclIsTypeOf(UML!StateMachine))
-					->collect(e | thisModule.SM2ModuleVar(e))
+					->select(e | e.oclIsTypeOf(UML!StateMachine) and e.isSMqa())
+					->collect(e | thisModule.SMqa2ModuleVar(e)),
+			vars <- model.packagedElement
+					->select(e | e.oclIsTypeOf(UML!StateMachine) and e.isSMac())
+					->collect(e | thisModule.SMac2ModuleVar(e))
 		),
 		assign : NuSMV!AssignConstraintElement (
 			-- state var init
 			bodies <- model.packagedElement
-					->select(e | e.oclIsTypeOf(UML!StateMachine))
+					->select(e | e.oclIsTypeOf(UML!StateMachine) and e.isSMqa())
 					->collect(e | thisModule.SM2StateVarInit(e)),
 			-- action var init
 			bodies <- model.packagedElement
@@ -78,7 +81,7 @@ unique lazy rule SM2ActionVar {
 	}
 }
 
-unique lazy rule SM2ModuleVar {
+unique lazy rule SMqa2ModuleVar {
 	from 
 		sm : UML!StateMachine
 	to 
@@ -93,6 +96,24 @@ unique lazy rule SM2ModuleVar {
 		),
 		state_var_param : NuSMV!FormalParameter (
 			name <- sm.getStateVar()
+		)
+	do {
+		modul;
+	}
+}
+
+unique lazy rule SMac2ModuleVar {
+	from 
+		sm : UML!StateMachine
+	to 
+		modul : NuSMV!VarBody (
+			name <- sm.name.split('SMac4').last(),
+			semicolon <- true,
+			type <- moduletype
+		),
+		moduletype : NuSMV!ModuleType (
+			params <- sm.getTransitionVars(),
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e))
 		)
 	do {
 		modul;
@@ -128,9 +149,9 @@ unique lazy rule SM2ActionVarInit {
 		)
 }
 
-rule SM2Module {
+rule SMqa2Module {
 	from
-		sm : UML!StateMachine
+		sm : UML!StateMachine (sm.isSMqa())
 	to 
 		modul : NuSMV!Module (
 			name <- sm.name,
@@ -150,7 +171,7 @@ rule SM2Module {
 		),
 		case : NuSMV!CaseSimpleExpression (
 			branches <- sm.region.first().transition
-						->collect(e | thisModule.Transition2CaseBranch(e)),
+						->collect(e | thisModule.SMqaTransition2CaseBranch(e)),
 			branches <- truecase
 		),
 		truecase : NuSMV!CaseSimpleAssignementExpression (
@@ -159,7 +180,54 @@ rule SM2Module {
 		)
 }
 
-rule Transition2CaseBranch(trans : UML!Transition) {
+rule SMac2Module{
+	from
+		sm : UML!StateMachine (sm.isSMac())
+	to 
+		modul : NuSMV!Module (
+			name <- sm.name,
+			params <- sm.getTransitionVars(),
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e)),
+			moduleElement <- vardef,
+			moduleElement <- assign
+		),
+		vardef : NuSMV!VariableDeclaration (
+			vars <- thisModule.SM2StateVar(sm)
+		),
+		assign : NuSMV!AssignConstraintElement (
+			bodies <-thisModule.SM2StateVarInit(sm),
+			bodies <- state_next,
+			bodies <- action_next
+		),
+		state_next : NuSMV!NextBody(
+			var <- thisModule.genVar(sm.getStateVar()),
+			dotted <- state_case
+		),
+		state_case : NuSMV!CaseSimpleExpression (
+			branches <- sm.region.first().transition
+						->collect(e | thisModule.SMacTransitionEffect2CaseBranch(e)),
+			branches <- state_truecase
+		),
+		state_truecase : NuSMV!CaseSimpleAssignementExpression (
+			case <- thisModule.genValueExpression('TRUE'),
+			assignment <- thisModule.genValueExpression(sm.getStateVar())
+		),
+		action_next : NuSMV!NextBody (
+			var <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e)).first(),
+			dotted <- action_case
+		),
+		action_case : NuSMV!CaseSimpleExpression (
+			branches <- sm.region.first().transition
+						->collect(e | thisModule.SMacTransitionGuard2CaseBranch(e)),
+			branches <- action_truecase
+		),
+		action_truecase : NuSMV!CaseSimpleAssignementExpression (
+			case <- thisModule.genValueExpression('TRUE'),
+			assignment <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genValueExpression(e.name)).first()
+		)
+}
+
+rule SMqaTransition2CaseBranch(trans : UML!Transition) {
 	to 
 		branch : NuSMV!CaseSimpleAssignementExpression (
 			case <- exp,
@@ -169,6 +237,38 @@ rule Transition2CaseBranch(trans : UML!Transition) {
 			left <- thisModule.genValueExpression(trans.source.name),
 			operator <- '&',
 			right <- thisModule.genValueExpression(trans.trigger.first().name.replaceAll('.', '='))
+		)
+	do {
+		branch;
+	}
+}
+
+rule SMacTransitionEffect2CaseBranch(trans : UML!Transition) {
+	to 
+		branch : NuSMV!CaseSimpleAssignementExpression (
+			case <- exp,
+			assignment <- thisModule.genValueExpression(trans.target.getStateVal())
+		),	
+		exp : NuSMV!BinaryExpression (
+			left <- thisModule.genValueExpression(trans.source.name),
+			operator <- '&',
+			right <- thisModule.genValueExpression(trans.effect.name.replaceAll('.', '='))
+		)
+	do {
+		branch;
+	}
+}
+
+rule SMacTransitionGuard2CaseBranch(trans : UML!Transition) {
+	to 
+		branch : NuSMV!CaseSimpleAssignementExpression (
+			case <- exp,
+			assignment <- thisModule.genValueExpression(trans.effect.name.substring(trans.effect.name.indexOf('.') + 2, trans.effect.name.size()).debug())
+		),	
+		exp : NuSMV!BinaryExpression (
+			left <- thisModule.genValueExpression(trans.source.name),
+			operator <- '&',
+			right <- thisModule.genValueExpression(trans.guard.specification.body.first())
 		)
 	do {
 		branch;
@@ -205,6 +305,16 @@ rule genValueExpression(str : String) {
 	}
 }
 
+rule genFormalParam(str : String) {
+	to 
+		param : NuSMV!FormalParameter (
+			name <- str
+		)
+	do {
+		param;
+	}
+}
+
 helper context UML!StateMachine def : getStateVar() : String = 
 	let name : String = self.region.first().subvertex.first().name 
 	in name.substring(1, name.indexOf('='));
@@ -225,6 +335,10 @@ helper context UML!Vertex def : getStateVal() : String =
 helper context UML!StateMachine def : getTrigers() : Sequence(String) = 
 	self.region.first().transition;
 
+helper context UML!StateMachine def : getTransitionVars() : Sequence(NuSMV!FormalParameter) = 
+	let trans_cond : String = self.region.first().transition.first().guard.specification.body.first()
+	in trans_cond.split('&')->collect(e | thisModule.genFormalParam(e.substring(1, e.indexOf('='))));
+
 helper context String def : replaceDot2Eq() : String = 
 	if self.split('.').size() > 1 then self else self.replaceAll('.', '=') endif;
 
@@ -234,3 +348,14 @@ helper context UML!PackageableElement def : isActionEVP() : Boolean =
 	else false 
 	endif endif;
 
+helper context UML!PackageableElement def : isSMqa() : Boolean = 
+	if self.name.oclIsUndefined() then false 
+	else if self.name.startsWith('SMqa') then true 
+	else false 
+	endif endif;
+
+helper context UML!PackageableElement def : isSMac() : Boolean = 
+	if self.name.oclIsUndefined() then false 
+	else if self.name.startsWith('SMac') then true 
+	else false 
+	endif endif;
