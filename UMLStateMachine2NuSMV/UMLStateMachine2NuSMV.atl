@@ -91,11 +91,8 @@ unique lazy rule SMqa2ModuleVar {
 			type <- moduletype
 		),
 		moduletype : NuSMV!ModuleType (
-			params <- state_var_param,
-			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e))
-		),
-		state_var_param : NuSMV!FormalParameter (
-			name <- sm.getStateVar()
+			params <- thisModule.genFormalParam(sm.getStateVar()),
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name))
 		)
 	do {
 		modul;
@@ -113,20 +110,11 @@ unique lazy rule SMac2ModuleVar {
 		),
 		moduletype : NuSMV!ModuleType (
 			params <- sm.getTransitionVars(),
-			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e))
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name))
 		)
 	do {
 		modul;
 	}
-}
-
-lazy rule Attr2ActionParam {
-	from
-		attr : UML!Property
-	to 
-		param : NuSMV!FormalParameter (
-			name <- attr.name
-		)
 }
 
 unique lazy rule SM2StateVarInit {
@@ -155,12 +143,9 @@ rule SMqa2Module {
 	to 
 		modul : NuSMV!Module (
 			name <- sm.name,
-			params <- state_var_param,
-			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e)),
+			params <- thisModule.genFormalParam(sm.getStateVar()),
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name)),
 			moduleElement <- assign
-		),
-		state_var_param : NuSMV!FormalParameter (
-			name <- sm.getStateVar()
 		),
 		assign : NuSMV!AssignConstraintElement (
 			bodies <- next
@@ -187,7 +172,7 @@ rule SMac2Module{
 		modul : NuSMV!Module (
 			name <- sm.name,
 			params <- sm.getTransitionVars(),
-			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e)),
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name)),
 			moduleElement <- vardef,
 			moduleElement <- assign
 		),
@@ -199,6 +184,7 @@ rule SMac2Module{
 			bodies <- state_next,
 			bodies <- action_next
 		),
+		-- next expr for state var
 		state_next : NuSMV!NextBody(
 			var <- thisModule.genVar(sm.getStateVar()),
 			dotted <- state_case
@@ -212,8 +198,9 @@ rule SMac2Module{
 			case <- thisModule.genValueExpression('TRUE'),
 			assignment <- thisModule.genValueExpression(sm.getStateVar())
 		),
+		-- next expr for action var
 		action_next : NuSMV!NextBody (
-			var <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.Attr2ActionParam(e)).first(),
+			var <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name)).first(),
 			dotted <- action_case
 		),
 		action_case : NuSMV!CaseSimpleExpression (
@@ -263,7 +250,7 @@ rule SMacTransitionGuard2CaseBranch(trans : UML!Transition) {
 	to 
 		branch : NuSMV!CaseSimpleAssignementExpression (
 			case <- exp,
-			assignment <- thisModule.genValueExpression(trans.effect.name.substring(trans.effect.name.indexOf('.') + 2, trans.effect.name.size()).debug())
+			assignment <- thisModule.genValueExpression(trans.effect.name.substring(trans.effect.name.indexOf('.') + 2, trans.effect.name.size()))
 		),	
 		exp : NuSMV!BinaryExpression (
 			left <- thisModule.genValueExpression(trans.source.name),
@@ -332,15 +319,9 @@ helper context UML!Vertex def : getStateVal() : String =
 	let name : String = self.name 
 	in name.substring(name.indexOf('=') + 2, name.size());
 
-helper context UML!StateMachine def : getTrigers() : Sequence(String) = 
-	self.region.first().transition;
-
 helper context UML!StateMachine def : getTransitionVars() : Sequence(NuSMV!FormalParameter) = 
 	let trans_cond : String = self.region.first().transition.first().guard.specification.body.first()
 	in trans_cond.split('&')->collect(e | thisModule.genFormalParam(e.substring(1, e.indexOf('='))));
-
-helper context String def : replaceDot2Eq() : String = 
-	if self.split('.').size() > 1 then self else self.replaceAll('.', '=') endif;
 
 helper context UML!PackageableElement def : isActionEVP() : Boolean = 
 	if self.name.oclIsUndefined() then false 
