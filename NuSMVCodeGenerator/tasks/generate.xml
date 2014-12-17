@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project default="generate" name="NuSMVCodeGenerator">
-    <property name="ECLIPSE_HOME" value="../../../../../.."/>
-    <property name="ECLIPSE_WORKSPACE" value="../.."/>
+    <property name="ECLIPSE_HOME" value="../../../../../../../works/eclipse/eclipse-modeling-luna-R-macosx-cocoa-x86_64"/>
+    <property name="ECLIPSE_WORKSPACE" value="../../../../../../../works/eclipse/eclipse-modeling-luna-R-macosx-cocoa-x86_64/Eclipse.app/Contents/MacOS/workspace_uml2nusmv"/>
 
     <!-- The classpath with only the dependencies used by the project -->
     <path id="NuSMVCodeGenerator.libraryclasspath">

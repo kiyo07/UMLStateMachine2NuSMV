@@ -4,6 +4,6 @@
 [template public generateNuSMVCode(nusmv : NuSmvModel)]
 [comment @main/]
 [file ('NuSMVFromUMLSM.smv', false, 'UTF-8')]
-
+hogehoge
 [/file]
 [/template]
