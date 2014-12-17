@@ -11,7 +11,7 @@
           </type>
         </vars>
         <vars name="AC41" semicolon="true">
-          <type xsi:type="nuSMV:ModuleType">
+          <type xsi:type="nuSMV:ModuleType" module="/0/@modules.1">
             <params xsi:type="nuSMV:Var" value="/1"/>
             <params xsi:type="nuSMV:Var" value="/2"/>
             <params xsi:type="nuSMV:Var" value="/3"/>

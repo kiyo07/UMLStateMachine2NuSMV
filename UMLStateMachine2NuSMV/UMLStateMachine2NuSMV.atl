@@ -93,6 +93,7 @@ unique lazy rule SMqa2ModuleVar {
 			type <- moduletype
 		),
 		moduletype : NuSMV!ModuleType (
+			module <- sm,
 			params <- thisModule.genVar(sm.getStateVar()),
 			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genVar(e.name))
 		)
@@ -111,6 +112,7 @@ unique lazy rule SMac2ModuleVar {
 			type <- moduletype
 		),
 		moduletype : NuSMV!ModuleType (
+			module <- sm,
 			params <- sm.getTransitionVars(),
 			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genVar(e.name))
 		)

@@ -17,7 +17,7 @@
           </type>
         </vars>
         <vars name="QoS" semicolon="true">
-          <type xsi:type="nuSMV:ModuleType">
+          <type xsi:type="nuSMV:ModuleType" module="/0/@modules.1">
             <params xsi:type="nuSMV:Var" value="/1"/>
             <params xsi:type="nuSMV:Var" value="/2"/>
           </type>
