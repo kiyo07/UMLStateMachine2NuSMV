@@ -9,7 +9,9 @@ rule UML2NuSMV {
 		model : UML!Model
 	to 
 		smv : NuSMV!NuSmvModel (
-			modules <- main
+			modules <- main,
+			modules <- model.packagedElement
+						->select(e | e.oclIsTypeOf(UML!StateMachine))
 		),
 		main : NuSMV!Module (
 			name <- 'main',
@@ -91,8 +93,8 @@ unique lazy rule SMqa2ModuleVar {
 			type <- moduletype
 		),
 		moduletype : NuSMV!ModuleType (
-			params <- thisModule.genFormalParam(sm.getStateVar()),
-			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name))
+			params <- thisModule.genVar(sm.getStateVar()),
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genVar(e.name))
 		)
 	do {
 		modul;
@@ -110,7 +112,7 @@ unique lazy rule SMac2ModuleVar {
 		),
 		moduletype : NuSMV!ModuleType (
 			params <- sm.getTransitionVars(),
-			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name))
+			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genVar(e.name))
 		)
 	do {
 		modul;
@@ -171,7 +173,7 @@ rule SMac2Module{
 	to 
 		modul : NuSMV!Module (
 			name <- sm.name,
-			params <- sm.getTransitionVars(),
+			params <- sm.getTransitionFormalParams(),
 			params <- sm.getCorrespondingClass().ownedAttribute->collect(e | thisModule.genFormalParam(e.name)),
 			moduleElement <- vardef,
 			moduleElement <- assign
@@ -264,7 +266,10 @@ rule SMacTransitionGuard2CaseBranch(trans : UML!Transition) {
 
 rule genVar(str : String) {
 	to 
-		var : NuSMV!VarBody (
+		var : NuSMV!Var (
+			value <- var_body
+		),
+		var_body : NuSMV!VarBody (
 			name <- str
 		)
 	do {
@@ -319,7 +324,11 @@ helper context UML!Vertex def : getStateVal() : String =
 	let name : String = self.name 
 	in name.substring(name.indexOf('=') + 2, name.size());
 
-helper context UML!StateMachine def : getTransitionVars() : Sequence(NuSMV!FormalParameter) = 
+helper context UML!StateMachine def : getTransitionVars() : Sequence(NuSMV!Var) = 
+	let trans_cond : String = self.region.first().transition.first().guard.specification.body.first()
+	in trans_cond.split('&')->collect(e | thisModule.genVar(e.substring(1, e.indexOf('='))));
+
+helper context UML!StateMachine def : getTransitionFormalParams() : Sequence(NuSMV!FormalParameter) = 
 	let trans_cond : String = self.region.first().transition.first().guard.specification.body.first()
 	in trans_cond.split('&')->collect(e | thisModule.genFormalParam(e.substring(1, e.indexOf('='))));
 
