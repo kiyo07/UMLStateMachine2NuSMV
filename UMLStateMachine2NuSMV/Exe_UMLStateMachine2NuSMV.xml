@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ATL2Metrics" default="extract" basedir=".">
+  
+  <!-- Set paths -->
+  <property name='inputname' value='QoSSMandAC41'/>
+  <property name='sourcedir' value='test'/>
+  <property name='mmdir'     value='ref'/>
+  <property name='outputdir' value='gen'/>
+  <property name='inputfile' value='${sourcedir}/${inputname}.uml' />
+	
+  <target name="extract">
+  	<atl.loadModel modelHandler="EMF" name="UML" metamodel="%EMF" nsURI="http://www.eclipse.org/uml2/4.0.0/UML"/>
+  	
+  	<!-- Define metamodels/models-->
+    <atl.loadModel modelHandler="EMF" name="UMLModel" metamodel="UML" path="${inputfile}"/>
+    <atl.loadModel metamodel="%EMF" name="NuSMV" path="${mmdir}/NuSMV.ecore"/>
+  	
+  	<!-- Execute transformation -->
+  	<atl.launch path="UMLStateMachine2NuSMV.asm" refining="false">
+  	  <inModel name="IN" model="UMLModel"/>
+  	  <outModel name="OUT" model="out" metamodel="NuSMV"/>
+  	</atl.launch>
+
+  	<!-- Generate output model -->
+  	<atl.saveModel model="out" path="${outputdir}/${inputname}.nusmvmodel" />
+  </target>
+</project>
