@@ -16,14 +16,14 @@
             <val name="switchToText"/>
           </type>
         </vars>
-        <vars name="QoS" semicolon="true">
-          <type xsi:type="nuSMV:ModuleType">
+        <vars name="SMqa4QoS" semicolon="true">
+          <type xsi:type="nuSMV:ModuleType" module="/0/@modules.1">
             <params xsi:type="nuSMV:Var" value="/1"/>
             <params xsi:type="nuSMV:Var" value="/2"/>
           </type>
         </vars>
-        <vars name="AC41" semicolon="true">
-          <type xsi:type="nuSMV:ModuleType">
+        <vars name="SMac4AC41" semicolon="true">
+          <type xsi:type="nuSMV:ModuleType" module="/0/@modules.2">
             <params xsi:type="nuSMV:Var" value="/3"/>
             <params xsi:type="nuSMV:Var" value="/4"/>
             <params xsi:type="nuSMV:Var" value="/5"/>
