@@ -6,7 +6,7 @@
 */bin/
 
 # eclipse files
-*/.project
+#*/.project
 */.metadato
-*/.classpath
+#*/.classpath
 */.settings/
