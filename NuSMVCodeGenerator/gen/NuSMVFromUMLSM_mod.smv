@@ -1,0 +1,63 @@
+MODULE main
+
+VAR
+	QoS:{high,notHigh};
+	responseTime:{fast,notFast};
+	actionEVP4:{none,switchToMM,switchToText};
+	SMqa4QoS:SMqa4QoS(QoS,actionEVP4);
+	SMqa4ResponseTime:SMqa4ResponseTime(responseTime,actionEVP4);
+	SMac4AC41:SMac4AC41(QoS,responseTime,actionEVP4);
+ASSIGN
+	init(QoS) := high;
+	init(responseTime) := fast;
+	init(actionEVP4) := none;
+
+--below manually added--
+SPEC EF(responseTime=fast & QoS=high);
+--above manually added--
+
+MODULE SMac4AC41(QoS,responseTime,actionEVP4)
+
+VAR
+	contentType:{MM,text};
+ASSIGN
+	init(contentType) := MM;
+	next(contentType):=
+		case
+		 contentType=MM & actionEVP4=switchToText : text;
+		 contentType=text & actionEVP4=switchToMM : MM;
+		 TRUE : contentType;
+		 esac;
+	next(actionEVP4):=
+		case
+		 contentType=MM & QoS=notHigh&responseTime=fast : switchToText ;
+		 contentType=text & QoS=notHigh&responseTime=fast : switchToMM ;
+		 TRUE : actionEVP4;
+		 esac;
+
+MODULE SMqa4QoS(QoS,actionEVP4)
+
+ASSIGN
+	next(QoS):=
+		case
+		 QoS=notHigh & actionEVP4=switchToMM : high;
+		 QoS=high & actionEVP4=switchToText : notHigh;
+		 QoS=high & actionEVP4=switchToMM : high;
+		 QoS=notHigh & actionEVP4=switchToText : notHigh;
+		 TRUE : QoS;
+		 esac;
+
+MODULE SMqa4ResponseTime(responseTime,actionEVP4)
+
+ASSIGN
+	next(responseTime):=
+		case
+		 responseTime=fast & actionEVP4=switchToMM : notFast;
+		 responseTime=notFast & actionEVP4=switchToText : fast;
+		 responseTime=fast & actionEVP4=switchToText : fast;
+		 responseTime=notFast & actionEVP4=switchToMM : notFast;
+		 TRUE : responseTime;
+		 esac;
+
+
+
