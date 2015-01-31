@@ -88,7 +88,7 @@ unique lazy rule SMqa2ModuleVar {
 		sm : UML!StateMachine
 	to 
 		modul : NuSMV!VarBody (
-			name <- sm.getStateVar(),
+			name <- sm.name,
 			semicolon <- true,
 			type <- moduletype
 		),
@@ -107,7 +107,7 @@ unique lazy rule SMac2ModuleVar {
 		sm : UML!StateMachine
 	to 
 		modul : NuSMV!VarBody (
-			name <- sm.name.split('SMac4').last(),
+			name <- sm.name,
 			semicolon <- true,
 			type <- moduletype
 		),

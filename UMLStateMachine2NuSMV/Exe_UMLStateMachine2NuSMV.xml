@@ -2,26 +2,26 @@
 <project name="ATL2Metrics" default="extract" basedir=".">
   
   <!-- Set paths -->
-  <property name='inputname' value='QoSSMandAC41'/>
-  <property name='sourcedir' value='test'/>
-  <property name='mmdir'     value='ref'/>
-  <property name='outputdir' value='gen'/>
-  <property name='inputfile' value='${sourcedir}/${inputname}.uml' />
+  <property name="inputname" value="SMac4AC41"></property>
+  <property name="sourcedir" value="test"></property>
+  <property name="mmdir" value="ref"></property>
+  <property name="outputdir" value="gen"></property>
+  <property name="inputfile" value="${sourcedir}/${inputname}.uml"></property>
 	
   <target name="extract">
-  	<atl.loadModel modelHandler="EMF" name="UML" metamodel="%EMF" nsURI="http://www.eclipse.org/uml2/4.0.0/UML"/>
+  	<atl.loadModel modelHandler="EMF" name="UML" metamodel="%EMF" nsURI="http://www.eclipse.org/uml2/4.0.0/UML"></atl.loadModel>
   	
   	<!-- Define metamodels/models-->
-    <atl.loadModel modelHandler="EMF" name="UMLModel" metamodel="UML" path="${inputfile}"/>
-    <atl.loadModel metamodel="%EMF" name="NuSMV" path="${mmdir}/NuSMV.ecore"/>
+    <atl.loadModel modelHandler="EMF" name="UMLModel" metamodel="UML" path="${inputfile}"></atl.loadModel>
+    <atl.loadModel metamodel="%EMF" name="NuSMV" path="${mmdir}/NuSMV.ecore"></atl.loadModel>
   	
   	<!-- Execute transformation -->
   	<atl.launch path="UMLStateMachine2NuSMV.asm" refining="false">
-  	  <inModel name="IN" model="UMLModel"/>
-  	  <outModel name="OUT" model="out" metamodel="NuSMV"/>
+  	  <inModel name="IN" model="UMLModel"></inModel>
+  	  <outModel name="OUT" model="out" metamodel="NuSMV"></outModel>
   	</atl.launch>
 
   	<!-- Generate output model -->
-  	<atl.saveModel model="out" path="${outputdir}/${inputname}.nusmvmodel" />
+  	<atl.saveModel model="out" path="${outputdir}/${inputname}.nusmvmodel"></atl.saveModel>
   </target>
 </project>
