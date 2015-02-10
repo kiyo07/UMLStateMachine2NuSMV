@@ -10,6 +10,8 @@
  *******************************************************************************/
 package NuSMVCodeGenerator.main;
 
+import it.unibg.nuseen.nusmvlanguage.nuSMV.NuSMVPackage;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -372,6 +374,7 @@ public class Generate extends AbstractAcceleoGenerator {
          * 
          * To learn more about Package Registration, have a look at the Acceleo documentation (Help -> Help Contents).
          */
+        resourceSet.getPackageRegistry().put(NuSMVPackage.eNS_URI, NuSMVPackage.eINSTANCE);
     }
 
     /**
