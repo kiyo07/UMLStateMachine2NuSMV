@@ -22,6 +22,8 @@ import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.common.util.Monitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 
 /**
@@ -335,7 +337,7 @@ public class Generate extends AbstractAcceleoGenerator {
      * 
      * @param resourceSet
      *            The resource set which registry has to be updated.
-     * @generated
+     * @generated NOT
      */
     @Override
     public void registerPackages(ResourceSet resourceSet) {
@@ -372,6 +374,17 @@ public class Generate extends AbstractAcceleoGenerator {
          * 
          * To learn more about Package Registration, have a look at the Acceleo documentation (Help -> Help Contents).
          */
+        
+        // obtain a package of the target metamodel
+        Resource r = resourceSet.getResource(URI.createURI("ref/NuSMV.ecore"), true);
+        EObject eObject = r.getContents().get(0);
+
+        //register metamodel's nsURI to the resourceSet
+        if (eObject instanceof EPackage) {
+        	EPackage p = (EPackage)eObject;
+        	resourceSet.getPackageRegistry().put(p.getNsURI(), p);
+        }
+
     }
 
     /**
